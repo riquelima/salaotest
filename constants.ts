@@ -1,6 +1,6 @@
 
 
-export const APP_NAME = "✂️ Salão Móvel Infantil ✂️";
+export const APP_NAME = "Salão Móvel Infantil";
 export const HAIRDRESSER_NAME = "Tia Déa";
 
 // New structured content for the main presentation card
@@ -13,10 +13,10 @@ export const HAIRDRESSER_ABOUT_LINES = [
 ];
 
 export const CAROUSEL_IMAGES = [
-  { src: 'https://picsum.photos/seed/kidcut1/600/400', alt: 'Criança sorrindo durante o corte de cabelo' },
-  { src: 'https://picsum.photos/seed/kidcut2/600/400', alt: 'Estilo de corte de cabelo infantil moderno' },
-  { src: 'https://picsum.photos/seed/kidcut3/600/400', alt: 'Cabeleireira interagindo com criança no salão' },
-  { src: 'https://picsum.photos/seed/kidcut4/600/400', alt: 'Detalhe de um corte de cabelo infantil' },
+  { src: 'https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/corte1.png', alt: 'Criança com corte de cabelo moderno e estiloso' },
+  { src: 'https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/corte2.png', alt: 'Menino sorrindo após corte de cabelo no salão' },
+  { src: 'https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/corte3.png', alt: 'Menina com novo corte de cabelo infantil e franja' },
+  { src: 'https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/corte4.png', alt: 'Criança feliz com seu corte de cabelo temático' },
 ];
 
 export const HAIRDRESSER_PHOTO_URL = 'https://picsum.photos/seed/tiadea/200/200';

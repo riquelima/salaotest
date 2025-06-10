@@ -2,15 +2,16 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { GEMINI_MODEL_TEXT } from '../constants';
 
-const API_KEY = process.env.API_KEY;
-
-if (!API_KEY) {
-  console.warn("Gemini API key not found. Please set the API_KEY environment variable.");
-}
-const ai = new GoogleGenAI({ apiKey: API_KEY || "MISSING_API_KEY" });
+// Per guideline: "Always use const ai = new GoogleGenAI({apiKey: process.env.API_KEY});"
+// And "Assume this variable is pre-configured, valid, and accessible"
+// And "Use this process.env.API_KEY string directly when initializing"
+// The '!' asserts process.env.API_KEY is non-null, as per assumption it's pre-configured.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
 export const generateFollowUpMessage = async (clientName: string, serviceName: string = "corte de cabelo infantil"): Promise<string> => {
-  if (!API_KEY) {
+  // Check against process.env.API_KEY as per guideline that it's the source of truth
+  if (!process.env.API_KEY) {
+    console.warn("Gemini API key not found for generateFollowUpMessage. Using fallback.");
     return Promise.resolve(`Olá ${clientName}! 😊 Já está na hora do próximo ${serviceName} do seu pequeno(a)? Adoraríamos revê-los! Agende um horário conosco. ✨`);
   }
   try {
@@ -36,7 +37,8 @@ export const generateFollowUpMessage = async (clientName: string, serviceName: s
 };
 
 export const generateGeneralQueryResponse = async (query: string): Promise<{text: string, groundingChunks?: any[]}> => {
-  if (!API_KEY) {
+  if (!process.env.API_KEY) {
+    console.warn("Gemini API key not found for generateGeneralQueryResponse. Using fallback.");
     return Promise.resolve({text: "Desculpe, o serviço de IA não está disponível no momento."});
   }
   try {

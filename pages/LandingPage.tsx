@@ -8,7 +8,7 @@ import {
   HAIRDRESSER_NAME, 
   HAIRDRESSER_ABOUT_TITLE, 
   HAIRDRESSER_ABOUT_LINES, 
-  HAIRDRESSER_PHOTO_URL, // Importa a URL da foto
+  HAIRDRESSER_PHOTO_URL,
   CAROUSEL_IMAGES, 
   WHATSAPP_NUMBER, 
   HOME_SERVICE_DAYS, 
@@ -76,10 +76,8 @@ const LandingPage: React.FC = () => {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
   };
 
-  // Prepara os slides para o carrossel
   const carouselSlides = [
-    // Slide 1: Informações da profissional
-    <Card key="info-slide" className="w-full h-full flex flex-col justify-center relative"> {/* Adicionado relative */}
+    <Card key="info-slide" className="w-full h-full flex flex-col justify-center relative">
       <div 
         className="absolute top-4 right-4 sm:top-6 sm:right-6 w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-white dark:border-gray-700 shadow-lg"
         style={{zIndex: 1}} 
@@ -107,7 +105,6 @@ const LandingPage: React.FC = () => {
         </div>
       </div>
     </Card>,
-    // Slides de Imagem
     ...CAROUSEL_IMAGES.map((img, index) => (
       <Card key={`img-slide-${index}`} className="p-0 overflow-hidden w-full h-full"> 
         <img 
@@ -120,11 +117,18 @@ const LandingPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 pt-10 sm:pt-16">
-      <header className="text-center mb-8 sm:mb-12">
-        <h1 className={`text-4xl sm:text-5xl font-extrabold text-[${LIGHT_THEME_CONFIG.primary}] dark:text-[${DARK_THEME_CONFIG.textPrimary}] drop-shadow-lg transition-colors duration-300`}>
-          {APP_NAME}
-        </h1>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 pt-10 sm:pt-12"> {/* Adjusted top padding */}
+      <header className="text-center mb-8 sm:mb-12 w-full">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+          <img 
+            src="https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/logo1.png" 
+            alt="Salão Móvel Infantil Logo" 
+            className="w-32 h-32 md:w-40 md:h-40 object-contain"
+          />
+          <h1 className={`text-4xl sm:text-5xl font-extrabold text-[${LIGHT_THEME_CONFIG.primary}] dark:text-[${DARK_THEME_CONFIG.textPrimary}] drop-shadow-lg transition-colors duration-300`}>
+            {APP_NAME}
+          </h1>
+        </div>
         <p className={`text-xl sm:text-2xl text-[${LIGHT_THEME_CONFIG.textSecondary}] dark:text-[${DARK_THEME_CONFIG.textSecondary}] mt-2 transition-colors duration-300`}>com {HAIRDRESSER_NAME}</p>
       </header>
 

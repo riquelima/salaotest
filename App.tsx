@@ -30,6 +30,7 @@ const App: React.FC = () => {
         <DataProvider>
           <ThemeProvider>
             <div className="min-h-screen flex flex-col bg-[#F9FAFB] text-[#111827] dark:bg-[#191919] dark:text-[#E0E0E0] transition-colors duration-300">
+              {/* Removed fixed top-right logo from here */}
               <AppContent />
               <ThemeSwitcher />
             </div>

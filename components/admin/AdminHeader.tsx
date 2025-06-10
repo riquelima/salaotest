@@ -5,7 +5,7 @@ import { APP_NAME, LIGHT_THEME_CONFIG, DARK_THEME_CONFIG } from '../../constants
 import Button from '../ui/Button';
 import { 
   LogoutIcon, 
-  Cog6ToothIcon
+  // Cog6ToothIcon no longer used
 } from '../icons';
 
 const AdminHeader: React.FC = () => {
@@ -21,7 +21,11 @@ const AdminHeader: React.FC = () => {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div className={`flex items-center text-xl sm:text-2xl font-semibold text-[${LIGHT_THEME_CONFIG.textPrimary}] dark:text-[${DARK_THEME_CONFIG.textPrimary}] transition-colors duration-300`}>
-            <Cog6ToothIcon className={`w-7 h-7 sm:w-8 sm:h-8 mr-2 text-[${LIGHT_THEME_CONFIG.primary}] dark:text-[${DARK_THEME_CONFIG.iconColor}] transition-colors duration-300`} />
+            <img 
+              src="https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/logo1.png" 
+              alt="Salão Móvel Infantil Admin Logo" 
+              className="w-28 h-28 sm:w-32 sm:h-32 object-contain mr-2 sm:mr-3" // Adjusted size and margin
+            />
             {APP_NAME} - Admin
           </div>
           <Button onClick={logout} variant="danger" size="sm" leftIcon={<LogoutIcon className="w-5 h-5" />}>
