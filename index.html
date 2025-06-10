@@ -30,18 +30,18 @@
             }
           }
         }
-      };
+      }; // Semicolon after config object
 
       // Theme initialization script
       (function() {
-        const theme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = localStorage.getItem('theme'); // Added semicolon
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches; // Added semicolon
         if (theme === 'dark' || (!theme && prefersDark)) {
-          document.documentElement.classList.add('dark');
+          document.documentElement.classList.add('dark'); // Added semicolon
         } else {
-          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.remove('dark'); // Added semicolon
         }
-      })();
+      })(); // Added semicolon
     </script>
     <style>
       :root {
