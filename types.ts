@@ -3,42 +3,52 @@ export interface Client {
   id: string;
   name: string;
   phone: string;
-  lastAppointmentDate?: string; // ISO string
+  lastServiceDate?: string; // ISO date string
   notes?: string;
-  appointmentCount: number;
+  serviceCount: number;
 }
 
 export enum AppointmentLocation {
-  DOMICILIO = "A Domicílio",
-  SALAO = "Salão",
+  HOME = 'Domicílio',
+  SALON = 'Salão',
 }
 
 export interface Appointment {
-  id:string;
-  clientId: string;
-  clientName: string; // Denormalized for easier display
-  date: string; // ISO string for date and time
+  id: string;
+  clientName: string; 
+  date: string; // ISO date string with time
   location: AppointmentLocation;
   notes?: string;
   serviceValue?: number;
+  completed: boolean;
 }
 
 export interface FinancialRecord {
-  id: string;
+  id: string; 
   appointmentId: string;
-  date: string; // ISO string
+  date: string; // ISO date string
   amount: number;
   description: string;
 }
 
-export interface GroundingChunkWeb {
-  uri: string;
-  title: string;
+export interface AppConfig {
+  stylistName: string;
+  serviceDescription: string;
+  homeServiceDays: number[]; // 0 for Sunday, 1 for Monday, etc.
+  salonAddress: string;
+  whatsAppNumber: string;
+  adminPassword: string; // Plain text for simplicity, as per "simple password"
 }
 
+export type Theme = 'light' | 'dark';
+
 export interface GroundingChunk {
-  web?: GroundingChunkWeb;
+  web?: {
+    uri: string;
+    title: string;
+  };
   retrievedContext?: {
-    text?: string;
+    uri: string;
+    title: string;
   };
 }

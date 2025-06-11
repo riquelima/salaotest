@@ -1,7 +1,5 @@
-
 {
-  "name": "Salão Móvel Infantil - Admin",
-  "description": "Um sistema web para gerenciamento de um salão de beleza especializado em cortes infantis. Inclui agendamento, gestão de clientes, controle financeiro e ferramentas de comunicação.",
-  "requestFramePermissions": [],
-  "prompt": ""
+  "name": "Salão Infantil Encantado - Admin",
+  "description": "Aplicativo de gerenciamento para o Salão Infantil Encantado, permitindo controle de agenda, clientes, finanças e configurações.",
+  "requestFramePermissions": []
 }

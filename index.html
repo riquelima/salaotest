@@ -1,125 +1,48 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Salão Móvel Infantil</title>
-    <link rel="icon" href="https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/logo1.png" type="image/png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salão Infantil Encantado</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class', 
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Roboto', 'sans-serif'],
-            },
-            colors: {
-              // Notion-style dark theme colors for direct use if needed,
-              // or to inform Tailwind's JIT if it helps.
-              'notion-dark-bg': '#191919',
-              'notion-dark-card': '#262626',
-              'notion-dark-border': '#303030',
-              'notion-dark-text': '#E0E0E0',
-              'notion-dark-text-secondary': '#A0A0A0',
-              'notion-dark-primary': '#333333',
-              'notion-dark-primary-hover': '#404040',
-            }
-          }
-        }
-      }; // Semicolon after config object
-
-      // Theme initialization script
-      (function() {
-        const theme = localStorage.getItem('theme'); // Added semicolon
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches; // Added semicolon
-        if (theme === 'dark' || (!theme && prefersDark)) {
-          document.documentElement.classList.add('dark'); // Added semicolon
-        } else {
-          document.documentElement.classList.remove('dark'); // Added semicolon
-        }
-      })(); // Added semicolon
-    </script>
     <style>
-      :root {
-        --scrollbar-track-light: #E5E7EB;
-        --scrollbar-thumb-light: #A1A1AA;
-        --scrollbar-thumb-hover-light: #6B7280;
-        
-        /* Notion-style dark scrollbar */
-        --scrollbar-track-dark: #262626; /* Card background */
-        --scrollbar-thumb-dark: #555555; /* Medium gray */
-        --scrollbar-thumb-hover-dark: #666666; /* Lighter Medium gray */
-      }
-
-      /* Default (light) scrollbar styles */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: var(--scrollbar-track-light);
-      }
-      ::-webkit-scrollbar-thumb {
-        background: var(--scrollbar-thumb-light);
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: var(--scrollbar-thumb-hover-light);
-      }
-
-      /* Dark theme scrollbar styles */
-      .dark ::-webkit-scrollbar-track {
-        background: var(--scrollbar-track-dark);
-      }
-      .dark ::-webkit-scrollbar-thumb {
-        background: var(--scrollbar-thumb-dark);
-      }
-      .dark ::-webkit-scrollbar-thumb:hover {
-        background: var(--scrollbar-thumb-hover-dark);
-      }
-
-      /* Modal Animation Styles */
-      @keyframes modalShow {
-        to {
-          opacity: 1;
-          transform: scale(1);
+        /* Minimal body styling to ensure full height and dark theme as default */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-      }
-      .animate-modalShow {
-        animation: modalShow 0.3s forwards;
-      }
-
-      /* Scrollbar Hide utility */
-      .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-      }
-      .scrollbar-hide {
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-      }
+        /* Custom scrollbar for webkit browsers for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2A2A3D; /* Slightly lighter than main dark bg */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #7C3AED;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5b21b6; /* Darker purple on hover */
+        }
     </style>
-  <script type="importmap">
+<script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@^19.1.0",
     "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
     "react/": "https://esm.sh/react@^19.1.0/",
     "react-router-dom": "https://esm.sh/react-router-dom@^7.6.2",
-    "@google/genai": "https://esm.sh/@google/genai@^1.4.0",
+    "qrcode.react": "https://esm.sh/qrcode.react@^4.2.0",
     "recharts": "https://esm.sh/recharts@^2.15.3"
   }
 }
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="font-sans font-medium antialiased bg-[#F9FAFB] text-[#111827] dark:bg-[#191919] dark:text-[#E0E0E0] transition-colors duration-300">
-    <noscript>Você precisa habilitar o JavaScript para rodar este aplicativo.</noscript>
+<body class="antialiased">
     <div id="root"></div>
-    <script type="module" src="./index.tsx"></script>
-  <script type="module" src="/index.tsx"></script>
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>

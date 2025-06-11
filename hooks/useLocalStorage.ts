@@ -1,29 +1,55 @@
 
 import { useState, useEffect } from 'react';
 
-function useLocalStorage<T,>(key: string, initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
-  const getStoredValue = (): T => {
+function getValue<T,>(key: string, initialValue: T | (() => T)): T {
+  const savedValue = localStorage.getItem(key);
+  if (savedValue !== null) {
     try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      return JSON.parse(savedValue);
     } catch (error) {
-      console.warn(`Error reading localStorage key "${key}":`, error);
-      return initialValue;
+      console.error(`Error parsing localStorage key "${key}":`, error);
+      localStorage.removeItem(key); // Remove corrupted data
     }
-  };
+  }
 
-  const [storedValue, setStoredValue] = useState<T>(getStoredValue);
+  if (initialValue instanceof Function) {
+    return initialValue();
+  }
+  return initialValue;
+}
+
+export function useLocalStorage<T,>(key: string, initialValue: T | (() => T)): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [value, setValue] = useState<T>(() => getValue(key, initialValue));
 
   useEffect(() => {
     try {
-      const valueToStore = storedValue;
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
-      console.warn(`Error setting localStorage key "${key}":`, error);
+      console.error(`Error setting localStorage key "${key}":`, error);
     }
-  }, [key, storedValue]);
+  }, [key, value]);
 
-  return [storedValue, setStoredValue];
+  // Listen for storage events from other tabs/windows
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === key && event.newValue !== null) {
+        try {
+          setValue(JSON.parse(event.newValue));
+        } catch (error) {
+          console.error(`Error parsing storage event for key "${key}":`, error);
+        }
+      } else if (event.key === key && event.newValue === null) {
+         // If item was removed or set to null, reset to initialValue
+         setValue(initialValue instanceof Function ? initialValue() : initialValue);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [key, initialValue]);
+
+
+  return [value, setValue];
 }
-
-export default useLocalStorage;
