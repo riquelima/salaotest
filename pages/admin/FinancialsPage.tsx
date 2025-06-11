@@ -15,7 +15,7 @@ const FinancialsPage: React.FC = () => {
   
   const financialRecords: FinancialRecord[] = useMemo(() => {
     return appointments
-      .filter(app => app.completed && typeof app.serviceValue === 'number' && app.serviceValue > 0)
+      .filter(app => app.status === 'completed' && typeof app.serviceValue === 'number' && app.serviceValue > 0)
       .map(app => ({
         id: app.id, 
         appointmentId: app.id,

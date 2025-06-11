@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 // This allows all standard SVG props, including className, title, etc.
@@ -133,5 +132,17 @@ export const EyeSlashIcon: React.FC<IconProps> = ({ className, ...props }) => (
 export const SparklesIcon: React.FC<IconProps> = ({ className, ...props }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className || "w-5 h-5"} {...props}>
     <path fillRule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.39-3.423 3.251c-.805.767-.02 2.072.992 2.072H4.41l1.83 4.401c.321.772 1.415.772 1.736 0l1.83-4.401 4.753-.39 3.423-3.251c.805.767.02-2.072-.992-2.072H15.6l-1.83-4.401zM9.462 5.344a.5.5 0 01.076-.583l.79-.79a.5.5 0 01.708 0l.79.79a.5.5 0 01-.584.658A3.486 3.486 0 0010 3.5a3.486 3.486 0 00-1.124.206.5.5 0 01-.414-.462zM6.558 7.603a.5.5 0 01.583-.076L8 8.058a.5.5 0 010 .708l-.79.79a.5.5 0 01-.658.584A3.486 3.486 0 003.5 10a3.486 3.486 0 00.206 1.124.5.5 0 01.462.414zM14.656 9.462a.5.5 0 01.583.076l.79.79a.5.5 0 010 .708l-.79.79a.5.5 0 01-.658-.584A3.486 3.486 0 0010 16.5a3.486 3.486 0 00-1.124-.206.5.5 0 01-.414.462zm-5.238-3.32a.5.5 0 01.076.583l-.79.79a.5.5 0 01-.708 0l-.79-.79a.5.5 0 01.584-.658A3.486 3.486 0 0010 3.5a3.486 3.486 0 001.124.206.5.5 0 01.414.462z" clipRule="evenodd" />
+  </svg>
+);
+
+export const ProfileIcon: React.FC<IconProps> = ({ className, ...props }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className || "w-12 h-12"} {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
+
+export const BanIcon: React.FC<IconProps> = ({ className, ...props }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className || "w-6 h-6"} {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
   </svg>
 );

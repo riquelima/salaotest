@@ -1,8 +1,8 @@
-
 export interface Client {
   id: string;
   name: string;
   phone: string;
+  email?: string; // Added email field
   lastServiceDate?: string; // ISO date string
   notes?: string;
   serviceCount: number;
@@ -13,14 +13,16 @@ export enum AppointmentLocation {
   SALON = 'Salão',
 }
 
+export type AppointmentStatus = 'pending' | 'confirmed' | 'completed' | 'missed' | 'cancelled';
+
 export interface Appointment {
   id: string;
   clientName: string; 
   date: string; // ISO date string with time
   location: AppointmentLocation;
+  status: AppointmentStatus; // Replaced completed: boolean
   notes?: string;
   serviceValue?: number;
-  completed: boolean;
 }
 
 export interface FinancialRecord {

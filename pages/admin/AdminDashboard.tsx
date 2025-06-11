@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../../contexts/AppContext';
@@ -15,18 +14,33 @@ const AdminDashboard: React.FC = () => {
   const [clients] = useLocalStorage<Client[]>(CLIENTS_KEY, []);
 
   const today = new Date();
-  const upcomingAppointments = filterAppointmentsByPeriod(appointments, 'week', today)
-    .filter(app => new Date(app.date) >= today && !app.completed)
+  const todayStart = new Date(today.setHours(0,0,0,0));
+  
+  const upcomingAppointments = filterAppointmentsByPeriod(appointments, 'week', new Date())
+    .filter(app => new Date(app.date) >= todayStart && (app.status === 'pending' || app.status === 'confirmed'))
     .sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
+  const appointmentsTodayCount = appointments.filter(app => {
+    const appDate = new Date(app.date);
+    return appDate.getFullYear() === todayStart.getFullYear() &&
+           appDate.getMonth() === todayStart.getMonth() &&
+           appDate.getDate() === todayStart.getDate() &&
+           (app.status === 'pending' || app.status === 'confirmed');
+  }).length;
+  
   const recentClients = clients
-    .filter(client => client.lastServiceDate && new Date(client.lastServiceDate) > new Date(new Date().setDate(today.getDate() - 7)))
+    .filter(client => {
+        const clientAppointments = appointments.filter(a => a.clientName === client.name && a.status === 'completed');
+        if (clientAppointments.length === 0) return false;
+        const lastService = clientAppointments.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+        return new Date(lastService.date) > new Date(new Date().setDate(today.getDate() - 7));
+    })
     .slice(0, 5);
 
   const stats = [
     { title: "Próximos Agendamentos (Semana)", value: upcomingAppointments.length, icon: <CalendarIcon className="w-8 h-8" />, color: "text-blue-500 dark:text-blue-400", link: "/admin/agenda" },
     { title: "Total de Clientes", value: clients.length, icon: <UsersIcon className="w-8 h-8" />, color: "text-green-500 dark:text-green-400", link: "/admin/clientes" },
-    { title: "Agendamentos Hoje", value: appointments.filter(app => formatDate(app.date) === formatDate(today.toISOString())).length, icon: <SparklesIcon className="w-8 h-8" />, color: "text-yellow-500 dark:text-yellow-400", link: "/admin/agenda" },
+    { title: "Agendamentos Hoje (Pend/Conf)", value: appointmentsTodayCount, icon: <SparklesIcon className="w-8 h-8" />, color: "text-yellow-500 dark:text-yellow-400", link: "/admin/agenda" },
   ];
 
   return (
@@ -74,7 +88,7 @@ const AdminDashboard: React.FC = () => {
         </Card>
 
         <Card>
-          <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Clientes Recentes (Últimos 7 dias)</h2>
+          <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Clientes Atendidos (Últimos 7 dias)</h2>
           {recentClients.length > 0 ? (
             <ul className="space-y-3 max-h-60 overflow-y-auto">
               {recentClients.map(client => (
@@ -106,7 +120,7 @@ const AdminDashboard: React.FC = () => {
             </Link>
              <Link to="/admin/retornos" className="block p-4 text-center bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg shadow-md transition-transform hover:scale-105">
               <FollowUpIcon className="w-8 h-8 mx-auto mb-2" />
-              Mensagens de Retorno
+              Mensagens de Retorno via WhatsApp
             </Link>
           </div>
         </Card>
@@ -115,4 +129,3 @@ const AdminDashboard: React.FC = () => {
 };
 
 export default AdminDashboard;
-

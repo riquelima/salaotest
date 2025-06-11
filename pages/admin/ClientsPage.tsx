@@ -1,4 +1,4 @@
-import React, { useState, FormEvent, useMemo } from 'react';
+import React, { useState, FormEvent, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Client, Appointment } from '../../types';
@@ -21,7 +21,7 @@ const ClientsPage: React.FC = () => {
   const [filterMonth, setFilterMonth] = useState<string>(''); // 'YYYY-MM'
 
   const location = useLocation();
-  React.useEffect(() => {
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('action') === 'add') {
       handleAddNew();
@@ -57,7 +57,7 @@ const ClientsPage: React.FC = () => {
     }
     
     // Update serviceCount and lastServiceDate based on appointments
-    const clientAppointments = appointments.filter(app => app.clientName === currentClient.name && app.completed);
+    const clientAppointments = appointments.filter(app => app.clientName === currentClient.name && app.status === 'completed');
     const serviceCount = clientAppointments.length;
     const lastServiceDate = clientAppointments.length > 0 
         ? clientAppointments.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0].date
@@ -93,7 +93,7 @@ const ClientsPage: React.FC = () => {
   const filteredClients = useMemo(() => {
     return clients
       .map(client => { // Recalculate service count and last service date for display
-        const clientApps = appointments.filter(app => app.clientName === client.name && app.completed);
+        const clientApps = appointments.filter(app => app.clientName === client.name && app.status === 'completed');
         return {
           ...client,
           serviceCount: clientApps.length,
@@ -134,12 +134,24 @@ const ClientsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Cadastro de Clientes</h1>
-        <Button onClick={handleAddNew} variant="primary">
-          <PlusIcon className="w-5 h-5 mr-2" /> Novo Cliente
-        </Button>
+      <div className="relative">
+        <div className="flex flex-col items-center mb-4">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-purple-200 dark:bg-purple-700 flex items-center justify-center mb-3 shadow-lg ring-2 ring-purple-500 dark:ring-purple-400 overflow-hidden">
+                <img 
+                    src="https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/logo1.png" 
+                    alt="Logo Salão" 
+                    className="w-full h-full object-cover" 
+                />
+            </div>
+        </div>
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100 text-center sm:text-left w-full sm:w-auto">Cadastro de Clientes</h1>
+            <Button onClick={handleAddNew} variant="primary" className="w-full sm:w-auto">
+            <PlusIcon className="w-5 h-5 mr-2" /> Novo Cliente
+            </Button>
+        </div>
       </div>
+
 
       <Card className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

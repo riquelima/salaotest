@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Client, Appointment } from '../../types';
@@ -21,7 +20,7 @@ const FollowUpPage: React.FC = () => {
   const clientsForFollowUp = useMemo(() => {
     return clients
       .map(client => { // Ensure latest service date and count
-        const clientApps = appointments.filter(app => app.clientName === client.name && app.completed);
+        const clientApps = appointments.filter(app => app.clientName === client.name && app.status === 'completed');
         return {
           ...client,
           serviceCount: clientApps.length,

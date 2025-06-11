@@ -5,7 +5,17 @@ import { QRCodeSVG as QRCode } from 'qrcode.react'; // Corrected import
 import { useAppContext } from '../contexts/AppContext';
 import { Button, Card, Modal } from '../components/ui';
 import { LoginIcon, WhatsAppIcon, ShareIcon, SparklesIcon } from '../components/icons';
+import ImageCarousel from '../components/ImageCarousel'; // Import the new carousel component
 import { DAYS_OF_WEEK } from '../constants';
+
+// Updated images for the carousel
+const carouselImages = [
+  { src: 'https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/corte1.png', alt: 'Corte de cabelo infantil 1' },
+  { src: 'https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/corte2.png', alt: 'Corte de cabelo infantil 2' },
+  { src: 'https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/corte3.png', alt: 'Corte de cabelo infantil 3' },
+  { src: 'https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/corte4.png', alt: 'Corte de cabelo infantil 4' },
+];
+
 
 const LandingPage: React.FC = () => {
   const { config, showNotification } = useAppContext();
@@ -55,6 +65,9 @@ const LandingPage: React.FC = () => {
           <InfoItem icon="📅" title="Atendimento a Domicílio" text={`Dias fixos: ${homeServiceDaysText}. Agende seu horário!`} />
           <InfoItem icon="🏠" title="Atendimento no Salão" text={`${config.salonAddress}. Por ordem de chegada.`} />
         </div>
+
+        {/* Image Carousel Section */}
+        <ImageCarousel images={carouselImages} />
         
         <div className="flex flex-col sm:flex-row gap-4 mt-8 justify-center">
           <Button 

@@ -1,4 +1,3 @@
-
 import React, { useState, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../../contexts/AppContext';
@@ -7,7 +6,7 @@ import { Button, Input, Card, Textarea } from '../../components/ui';
 import { DAYS_OF_WEEK, INITIAL_APP_CONFIG } from '../../constants';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { CLIENTS_KEY, APPOINTMENTS_KEY, FINANCIALS_KEY, CONFIG_KEY, AUTH_KEY, THEME_KEY } from '../../constants';
-import { LogoutIcon, SunIcon, MoonIcon } from '../../components/icons'; // Import LogoutIcon
+import { LogoutIcon, SunIcon, MoonIcon } from '../../components/icons'; // ProfileIcon removido
 import { ThemeToggleButton } from '../../components/ui';
 
 
@@ -133,9 +132,19 @@ const SettingsPage: React.FC = () => {
 
   return (
     <div className="space-y-8 max-w-2xl mx-auto">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Configurações Gerais</h1>
-        <ThemeToggleButton theme={theme} toggleTheme={toggleTheme} />
+      <div className="flex flex-col items-center mb-6">
+        <div className="w-24 h-24 rounded-full bg-purple-200 dark:bg-purple-700 flex items-center justify-center mb-4 shadow-lg ring-2 ring-purple-500 dark:ring-purple-400 overflow-hidden">
+          {/* Substituído ProfileIcon por img tag com a logo */}
+          <img 
+            src="https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/logo1.png" 
+            alt="Logo Salão" 
+            className="w-full h-full object-cover" 
+          />
+        </div>
+        <div className="flex justify-between items-center w-full">
+            <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100 text-center flex-grow">Configurações Gerais</h1>
+            <ThemeToggleButton theme={theme} toggleTheme={toggleTheme} />
+        </div>
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-6">

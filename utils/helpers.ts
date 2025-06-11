@@ -1,4 +1,4 @@
-import { Appointment, Client, FinancialRecord, AppointmentLocation } from '../types';
+import { Appointment, Client, FinancialRecord, AppointmentLocation, AppointmentStatus } from '../types';
 import { DAYS_OF_WEEK } from '../constants';
 
 export const formatDate = (dateString?: string, includeTime: boolean = false): string => {
@@ -32,6 +32,7 @@ export const generateId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
 };
 
+// Adjusted exportToCSV to handle generic data structure, specific mapping happens at call site.
 export const exportToCSV = <T extends object,>(data: T[], filename: string, columns: { key: keyof T, label: string }[]): void => {
   if (data.length === 0) {
     alert("Não há dados para exportar.");
@@ -87,18 +88,26 @@ export const isFutureDate = (dateString: string): boolean => {
   return new Date(dateString) >= today;
 };
 
-export const filterAppointmentsByPeriod = (appointments: Appointment[], period: 'week' | 'month', currentDate: Date = new Date()): Appointment[] => {
+export const filterAppointmentsByPeriod = (appointments: Appointment[], period: 'day' | 'week' | 'month', currentDate: Date = new Date()): Appointment[] => {
   const startOfCurrentDate = new Date(currentDate);
   startOfCurrentDate.setHours(0,0,0,0);
 
-  if (period === 'week') {
+  if (period === 'day') {
+    const endOfCurrentDate = new Date(startOfCurrentDate);
+    endOfCurrentDate.setHours(23,59,59,999);
+    return appointments.filter(app => {
+      const appDate = new Date(app.date);
+      return appDate >= startOfCurrentDate && appDate <= endOfCurrentDate;
+    });
+  } else if (period === 'week') {
     const dayOfWeek = startOfCurrentDate.getDay(); // 0 (Sun) - 6 (Sat)
     const startDate = new Date(startOfCurrentDate);
-    startDate.setDate(startOfCurrentDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)); // Start of week (Monday)
+    // Adjust to start week on Monday
+    startDate.setDate(startOfCurrentDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)); 
     
     const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 6);
-    endDate.setHours(23,59,59,999); // End of Sunday
+    endDate.setDate(startDate.getDate() + 6); // End of Sunday
+    endDate.setHours(23,59,59,999);
 
     return appointments.filter(app => {
       const appDate = new Date(app.date);
@@ -140,8 +149,19 @@ export const isClientRecent = (lastServiceDate?: string): boolean => {
 };
 
 export const isClientOverdueForReturn = (lastServiceDate?: string, daysThreshold: number = 45): boolean => {
-  if (!lastServiceDate) return true; // If never serviced, consider overdue for first contact maybe? Or handle separately. For now, true.
+  if (!lastServiceDate) return true; 
   const thresholdDate = new Date();
   thresholdDate.setDate(thresholdDate.getDate() - daysThreshold);
   return new Date(lastServiceDate) < thresholdDate;
+};
+
+export const getStatusLabel = (status: AppointmentStatus): string => {
+  switch (status) {
+    case 'pending': return 'Pendente';
+    case 'confirmed': return 'Confirmado';
+    case 'completed': return 'Concluído';
+    case 'cancelled': return 'Cancelado';
+    case 'missed': return 'Faltou';
+    default: return 'Desconhecido';
+  }
 };
