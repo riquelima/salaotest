@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 // This allows all standard SVG props, including className, title, etc.
@@ -64,7 +65,7 @@ export const MoonIcon: React.FC<IconProps> = ({ className, ...props }) => (
 
 export const ShareIcon: React.FC<IconProps> = ({ className, ...props }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className || "w-6 h-6"} {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.195.04.396.074.6.091M7.217 10.907v2.186m0-2.186c0 .191.012.38.034.566m-1.471.491a2.25 2.25 0 10-4.5 0 2.25 2.25 0 004.5 0m0 0v.001M16.183 13.093a2.25 2.25 0 100-2.186m0 2.186c-.195-.04-.396-.074-.6-.091m.6.091v-2.186m0 2.186c0-.191-.012-.38-.034-.566m1.471-.491a2.25 2.25 0 104.5 0 2.25 2.25 0 00-4.5 0m0 0v-.001m-3.512 0a2.25 2.25 0 100-2.186m0 2.186c.195.04.396.074.6.091M12.683 10.907v2.186m0-2.186c0 .191.012.38.034.566m0 0a2.25 2.25 0 100 2.186 2.25 2.25 0 000-2.186zm-4.434 4.434a2.25 2.25 0 100-2.186m0 2.186c.195-.04.396-.074.6-.091m-.6.091v-2.186m0 2.186a2.25 2.25 0 100-2.186m-2.217-4.434a2.25 2.25 0 100 2.186m0-2.186c-.195.04-.396.074-.6.091M10.466 6.473v2.186m0-2.186c0 .191.012.38.034.566M10.5 8.75a2.25 2.25 0 100-2.186 2.25 2.25 0 000 2.186z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.195.04.396.074.6.091M7.217 10.907v2.186m0-2.186c0 .191.012.38.034.566m-1.471.491a2.25 2.25 0 10-4.5 0 2.25 2.25 0 004.5 0m0 0v.001M16.183 13.093a2.25 2.25 0 100-2.186m0 2.186c-.195-.04-.396-.074-.6-.091m.6.091v-2.186m0 2.186c0-.191-.012-.38-.034-.566m1.471-.491a2.25 2.25 0 104.5 0 2.25 2.25 0 00-4.5 0m0 0v-.001m-3.512 0a2.25 2.25 0 100-2.186m0 2.186c.195.04.396.074.6.091M12.683 10.907v2.186m0-2.186c0 .191.012.38.034.566m0 0a2.25 2.25 0 100 2.186 2.25 2.25 0 000-2.186zm-4.434 4.434a2.25 2.25 0 100-2.186m0 2.186c.195-.04.396-.074.6-.091m-.6.091v-2.186m0 2.186a2.25 2.25 0 100-2.186m-2.217-4.434a2.25 2.25 0 100 2.186m0-2.186c-.195.04-.396-.074-.6-.091M10.466 6.473v2.186m0-2.186c0 .191.012.38.034.566M10.5 8.75a2.25 2.25 0 100-2.186 2.25 2.25 0 000 2.186z" />
   </svg>
 );
 
@@ -144,5 +145,11 @@ export const ProfileIcon: React.FC<IconProps> = ({ className, ...props }) => (
 export const BanIcon: React.FC<IconProps> = ({ className, ...props }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className || "w-6 h-6"} {...props}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+  </svg>
+);
+
+export const PhoneIcon: React.FC<IconProps> = ({ className, ...props }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className || "w-6 h-6"} {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
   </svg>
 );

@@ -157,56 +157,63 @@ const SettingsPage: React.FC = () => {
         </Card>
 
         <Card>
-            <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Dias de Atendimento a Domicílio</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                {DAYS_OF_WEEK.map((day, index) => (
-                    <label key={index} className="flex items-center space-x-2 p-2 border rounded-md dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-colors">
-                        <input
-                            type="checkbox"
-                            checked={formData.homeServiceDays?.includes(index) || false}
-                            onChange={() => handleHomeServiceDaysChange(index)}
-                            className="form-checkbox h-5 w-5 text-purple-600 rounded focus:ring-purple-500"
-                        />
-                        <span className="text-sm text-slate-700 dark:text-slate-300">{day}</span>
-                    </label>
-                ))}
-            </div>
+          <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Dias de Atendimento a Domicílio</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {DAYS_OF_WEEK.map((day, index) => (
+              <label key={index} className="flex items-center space-x-2 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-colors">
+                <input
+                  type="checkbox"
+                  checked={formData.homeServiceDays.includes(index)}
+                  onChange={() => handleHomeServiceDaysChange(index)}
+                  className="form-checkbox h-5 w-5 text-purple-600 rounded focus:ring-purple-500"
+                />
+                <span className="text-slate-700 dark:text-slate-200">{day}</span>
+              </label>
+            ))}
+          </div>
         </Card>
 
         <Card>
-          <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Alterar Senha de Admin</h2>
-          <Input label="Nova Senha (mín. 4 caracteres)" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Deixe em branco para não alterar" />
-          <Input label="Confirmar Nova Senha" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Deixe em branco para não alterar" />
+          <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Segurança</h2>
+          <Input label="Nova Senha (mín. 4 caracteres)" type="password" name="newPassword" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Deixe em branco para não alterar" />
+          <Input label="Confirmar Nova Senha" type="password" name="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
         </Card>
-        
-        <Button type="submit" variant="primary" size="lg" className="w-full">Salvar Configurações</Button>
+
+        <div className="mt-6 flex justify-end">
+          <Button type="submit" variant="primary" size="lg">Salvar Configurações</Button>
+        </div>
       </form>
 
       <Card>
-        <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Sessão e Dados</h2>
-         <Button onClick={handleLogout} variant="secondary" className="w-full mb-4">
-            <LogoutIcon className="w-5 h-5 mr-2" /> Sair (Logout)
-        </Button>
-        <div className="flex flex-col sm:flex-row gap-4">
-            <Button onClick={handleExportData} variant="secondary" className="w-full">Exportar Dados (Backup)</Button>
+        <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Gerenciamento de Dados</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Button onClick={handleExportData} variant="secondary">
+                Exportar Dados (Backup)
+            </Button>
             <div>
-                <label htmlFor="importFile" className="block w-full text-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-md cursor-pointer transition-colors">
+                <label htmlFor="importFile" className="block w-full text-center px-4 py-2 font-semibold rounded-lg shadow-md bg-slate-200 hover:bg-slate-300 text-slate-800 focus:ring-slate-400 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100 dark:focus:ring-slate-500 cursor-pointer transition-colors">
                     Importar Dados (Restaurar)
                 </label>
                 <input type="file" id="importFile" accept=".json" onChange={handleImportData} className="hidden" />
             </div>
         </div>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Os dados são armazenados localmente no seu navegador. Faça backups regularmente.</p>
-      </Card>
-      
-      <Card className="border-red-500 dark:border-red-700">
-        <h2 className="text-xl font-semibold mb-4 text-red-600 dark:text-red-400">Zona de Perigo</h2>
-        <Button onClick={handleResetApp} variant="danger" className="w-full">
-            Resetar Aplicativo (Apagar Todos os Dados)
-        </Button>
-        <p className="text-xs text-red-500 dark:text-red-400 mt-2">Esta ação é irreversível e apagará todos os clientes, agendamentos e configurações.</p>
       </Card>
 
+      <Card className="border-red-500/50 dark:border-red-400/50">
+        <h2 className="text-xl font-semibold mb-4 text-red-600 dark:text-red-400">Zona de Perigo</h2>
+        <Button onClick={handleResetApp} variant="danger" className="w-full">
+          Resetar Aplicativo (Apagar Todos os Dados)
+        </Button>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+            Esta ação é irreversível e apagará todos os clientes, agendamentos e redefinirá as configurações.
+        </p>
+      </Card>
+
+      <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 flex justify-center">
+        <Button onClick={handleLogout} variant="ghost" size="lg">
+          <LogoutIcon className="w-5 h-5 mr-2" /> Sair da Área Administrativa
+        </Button>
+      </div>
     </div>
   );
 };
