@@ -31,8 +31,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     } else {
       document.documentElement.classList.remove('dark');
     }
-    // Update Tailwind's theme config if it's dynamic, or ensure CSS reflects this.
-    // For CDN Tailwind, class on <html> is enough.
   }, [theme]);
 
   const toggleTheme = useCallback(() => {
@@ -69,7 +67,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     <AppContext.Provider value={{ theme, toggleTheme, isAuthenticated, login, logout, config, updateConfig, showNotification }}>
       {children}
       {notification && (
-        <div className={`fixed top-5 right-5 p-4 rounded-md shadow-lg text-white text-sm z-[100] transition-all duration-300 ease-in-out transform ${notification.type === 'success' ? 'bg-green-500' : notification.type === 'error' ? 'bg-red-500' : 'bg-blue-500'}`}>
+        <div className={`fixed top-5 right-5 p-4 rounded-lg shadow-lg text-white text-sm z-[100] transition-all duration-300 ease-in-out transform ${
+          notification.type === 'success' ? 'bg-[#4ADE80]' : 
+          notification.type === 'error' ? 'bg-[#F87171]' : 
+          'bg-[#60A5FA]' // Blue for info
+        }`}>
           {notification.message}
         </div>
       )}

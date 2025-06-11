@@ -1,3 +1,4 @@
+
 import { Appointment, Client, FinancialRecord, AppointmentLocation, AppointmentStatus } from '../types';
 import { DAYS_OF_WEEK } from '../constants';
 
@@ -7,16 +8,18 @@ export const formatDate = (dateString?: string, includeTime: boolean = false): s
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return 'Data inválida';
     
-    const options: Intl.DateTimeFormatOptions = {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    };
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
+    const year = date.getFullYear();
+
+    const formattedDate = `${day}/${month}/${year}`;
+
     if (includeTime) {
-      options.hour = '2-digit';
-      options.minute = '2-digit';
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${formattedDate} ${hours}:${minutes}`;
     }
-    return date.toLocaleDateString('pt-BR', options);
+    return formattedDate;
   } catch (error) {
     console.error("Error formatting date:", dateString, error);
     return 'Data inválida';

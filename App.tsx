@@ -10,14 +10,14 @@ import ClientsPage from './pages/admin/ClientsPage';
 import FinancialsPage from './pages/admin/FinancialsPage';
 import FollowUpPage from './pages/admin/FollowUpPage';
 import SettingsPage from './pages/admin/SettingsPage';
-import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminDashboard from './pages/admin/AdminDashboard'; 
 
 const App: React.FC = () => {
   const { theme, isAuthenticated } = useAppContext();
 
   return (
     <div className={`${theme} font-sans`}>
-      <div className="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300">
+      <div className="bg-[#F9FAFB] dark:bg-[#1E1E2F] text-[#111827] dark:text-[#F4F4F5] min-h-screen transition-colors duration-300">
         <HashRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />

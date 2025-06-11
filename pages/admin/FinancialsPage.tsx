@@ -1,16 +1,17 @@
+
 import React, { useState, useMemo } from 'react';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Appointment, FinancialRecord } from '../../types';
 import { Button, Card, Select } from '../../components/ui';
 import { ArrowDownTrayIcon, ChartBarIcon } from '../../components/icons';
 import { formatDate, formatCurrency, exportToCSV, getMonthName } from '../../utils/helpers';
-import { APPOINTMENTS_KEY } from '../../constants'; // FINANCIALS_KEY was removed as records are derived
+import { APPOINTMENTS_KEY } from '../../constants'; 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAppContext } from '../../contexts/AppContext';
 
 
 const FinancialsPage: React.FC = () => {
-  const { showNotification, theme: currentTheme } = useAppContext(); // Get theme from context
+  const { showNotification, theme } = useAppContext(); 
   const [appointments] = useLocalStorage<Appointment[]>(APPOINTMENTS_KEY, []);
   
   const financialRecords: FinancialRecord[] = useMemo(() => {
@@ -60,18 +61,18 @@ const FinancialsPage: React.FC = () => {
   }, [financialRecords, filterYear, filterMonth]);
   
   const sortedMonthlySummary = useMemo(() => {
-    const summary: { [monthKey: string]: number } = {}; // monthKey will be "0" through "11"
+    const summary: { [monthKey: string]: number } = {}; 
     const recordsToSummarize = filterYear ? financialRecords.filter(r => new Date(r.date).getFullYear().toString() === filterYear) : financialRecords;
 
     recordsToSummarize.forEach(record => {
-      const monthKey = (new Date(record.date).getMonth()).toString(); // "0" to "11"
+      const monthKey = (new Date(record.date).getMonth()).toString(); 
       summary[monthKey] = (summary[monthKey] || 0) + record.amount;
     });
 
-    const monthOrder = Array.from({length: 12}, (_, i) => i.toString()); // Array of "0" to "11"
+    const monthOrder = Array.from({length: 12}, (_, i) => i.toString()); 
 
     return monthOrder.map(monthKeyStr => ({
-        monthIndex: parseInt(monthKeyStr), // Keep numeric month index
+        monthIndex: parseInt(monthKeyStr), 
         name: getMonthName(parseInt(monthKeyStr)),
         Ganhos: summary[monthKeyStr] || 0
     })).filter(item => item.Ganhos > 0 || recordsToSummarize.some(r => new Date(r.date).getMonth() === item.monthIndex));
@@ -111,10 +112,23 @@ const FinancialsPage: React.FC = () => {
     showNotification("Dados financeiros exportados!", "success");
   };
 
+  const mainTextColor = "text-[#111827] dark:text-[#F4F4F5]";
+  const cardTitleColor = "text-[#1F2937] dark:text-[#E5E7EB]";
+  const mutedTextColor = "text-[#6B7280] dark:text-[#9CA3AF]";
+  const tableHeaderColor = "text-[#6B7280] dark:text-[#9CA3AF]";
+  const tableRowHover = "hover:bg-[#F3F4F6] dark:hover:bg-[#374151]/50";
+  const tableBorder = "divide-[#E5E7EB] dark:divide-[#4B5563]";
+  const tableHeaderBg = "bg-[#F9FAFB] dark:bg-[#1F2937]";
+  const chartTickFill = theme === 'dark' ? '#9CA3AF' : '#6B7280';
+  const chartGridStroke = theme === 'dark' ? '#374151' : '#E5E7EB';
+  const chartTooltipBg = theme === 'dark' ? '#2C2C3B' : '#FFFFFF';
+  const chartTooltipText = theme === 'dark' ? '#F4F4F5' : '#111827';
+
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Controle Financeiro</h1>
+        <h1 className={`text-3xl font-bold ${mainTextColor}`}>Controle Financeiro</h1>
         <Button onClick={handleExport} variant="primary" disabled={filteredRecords.length === 0}>
           <ArrowDownTrayIcon className="w-5 h-5 mr-2" /> Exportar CSV
         </Button>
@@ -136,39 +150,40 @@ const FinancialsPage: React.FC = () => {
             disabled={!filterYear}
           />
           <div className="md:col-span-1 flex items-end">
-            <Card className="w-full p-3 text-center bg-purple-50 dark:bg-purple-900/30">
-                 <p className="text-sm text-purple-700 dark:text-purple-300">Total Filtrado:</p>
-                 <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{formatCurrency(totalGains)}</p>
+            <Card className="w-full p-3 text-center bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/20">
+                 <p className="text-sm text-[#7C3AED] dark:text-[#A78BFA]">Total Filtrado:</p>
+                 <p className="text-2xl font-bold text-[#8B5CF6] dark:text-[#C4B5FD]">{formatCurrency(totalGains)}</p>
             </Card>
           </div>
         </div>
          {filterYear && (
             <div className="mt-4 text-center">
-                 <p className="text-md text-slate-600 dark:text-slate-300">Total Anual ({filterYear}): <span className="font-bold">{formatCurrency(annualTotal)}</span></p>
+                 <p className={`text-md ${mutedTextColor}`}>Total Anual ({filterYear}): <span className="font-bold">{formatCurrency(annualTotal)}</span></p>
             </div>
         )}
       </Card>
 
       {filterYear && sortedMonthlySummary.length > 0 && (
         <Card>
-          <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Ganhos Mensais ({filterYear})</h2>
+          <h2 className={`text-xl font-semibold mb-4 ${cardTitleColor}`}>Ganhos Mensais ({filterYear})</h2>
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
               <BarChart data={sortedMonthlySummary} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} className="stroke-slate-300 dark:stroke-slate-700"/>
-                <XAxis dataKey="name" tick={{ fill: currentTheme === 'dark' ? '#cbd5e1' : '#475569', fontSize: 12 }} />
-                <YAxis tickFormatter={(value) => formatCurrency(value as number)} tick={{ fill: currentTheme === 'dark' ? '#cbd5e1' : '#475569', fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} stroke={chartGridStroke}/>
+                <XAxis dataKey="name" tick={{ fill: chartTickFill, fontSize: 12 }} />
+                <YAxis tickFormatter={(value) => formatCurrency(value as number)} tick={{ fill: chartTickFill, fontSize: 12 }} />
                 <Tooltip
                   formatter={(value) => formatCurrency(value as number)}
                   contentStyle={{ 
-                    backgroundColor: currentTheme === 'dark' ? '#334155' : '#ffffff', 
-                    borderColor: currentTheme === 'dark' ? '#475569' : '#e2e8f0', 
-                    color: currentTheme === 'dark' ? '#f1f5f9' : '#1e293b' 
+                    backgroundColor: chartTooltipBg, 
+                    borderColor: chartGridStroke,
+                    borderRadius: '0.5rem',
+                    color: chartTooltipText
                   }}
-                  itemStyle={{ color: currentTheme === 'dark' ? '#f1f5f9' : '#1e293b' }}
-                  cursor={{ fill: currentTheme === 'dark' ? 'rgba(124, 58, 237, 0.2)' : 'rgba(124, 58, 237, 0.1)' }} 
+                  itemStyle={{ color: chartTooltipText }}
+                  cursor={{ fill: theme === 'dark' ? 'rgba(167, 139, 250, 0.2)' : 'rgba(139, 92, 246, 0.1)' }} 
                 />
-                <Legend wrapperStyle={{ color: currentTheme === 'dark' ? '#cbd5e1' : '#475569' }} />
+                <Legend wrapperStyle={{ color: chartTickFill }} />
                 <Bar dataKey="Ganhos" fill="#7C3AED" radius={[4, 4, 0, 0]} barSize={30} />
               </BarChart>
             </ResponsiveContainer>
@@ -179,27 +194,27 @@ const FinancialsPage: React.FC = () => {
 
       {filteredRecords.length === 0 ? (
         <Card className="text-center p-8">
-            <ChartBarIcon className="w-16 h-16 mx-auto text-slate-400 dark:text-slate-500 mb-4" />
-            <p className="text-slate-500 dark:text-slate-400">Nenhum registro financeiro encontrado para o período selecionado.</p>
+            <ChartBarIcon className={`w-16 h-16 mx-auto ${mutedTextColor} mb-4`} />
+            <p className={`${mutedTextColor}`}>Nenhum registro financeiro encontrado para o período selecionado.</p>
         </Card>
       ) : (
         <Card>
-            <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">Registros Detalhados</h2>
+            <h2 className={`text-xl font-semibold mb-4 ${cardTitleColor}`}>Registros Detalhados</h2>
             <div className="overflow-x-auto max-h-96">
-            <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-                <thead className="bg-slate-50 dark:bg-slate-800 sticky top-0">
+            <table className={`min-w-full divide-y ${tableBorder}`}>
+                <thead className={`${tableHeaderBg} sticky top-0`}>
                 <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Data</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Descrição</th>
-                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider">Valor</th>
+                    <th scope="col" className={`px-6 py-3 text-left text-xs font-medium ${tableHeaderColor} uppercase tracking-wider`}>Data</th>
+                    <th scope="col" className={`px-6 py-3 text-left text-xs font-medium ${tableHeaderColor} uppercase tracking-wider`}>Descrição</th>
+                    <th scope="col" className={`px-6 py-3 text-right text-xs font-medium ${tableHeaderColor} uppercase tracking-wider`}>Valor</th>
                 </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-slate-800/50 divide-y divide-slate-200 dark:divide-slate-700">
+                <tbody className={`bg-white dark:bg-[#2C2C3B]/80 divide-y ${tableBorder}`}>
                 {filteredRecords.map(record => (
-                    <tr key={record.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 dark:text-slate-200">{formatDate(record.date)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 dark:text-slate-200">{record.description}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-green-600 dark:text-green-400">{formatCurrency(record.amount)}</td>
+                    <tr key={record.id} className={tableRowHover}>
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${mainTextColor}`}>{formatDate(record.date)}</td>
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${mainTextColor}`}>{record.description}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-[#16A34A] dark:text-[#4ADE80]">{formatCurrency(record.amount)}</td>
                     </tr>
                 ))}
                 </tbody>

@@ -1,5 +1,5 @@
 
-import { AppConfig } from './types';
+import { AppConfig, Client } from './types';
 
 export const APP_NAME = "Salão Infantil Encantado";
 export const DEFAULT_STYLIST_NAME = "Tia Déa | Salão Móvel Infantil";
@@ -18,11 +18,27 @@ export const INITIAL_APP_CONFIG: AppConfig = {
   adminPassword: ADMIN_DEFAULT_PASSWORD,
 };
 
+export const PREDEFINED_CLIENTS: Client[] = [
+  {
+    id: 'default-client-henrique-lima', // Static ID for the predefined client
+    name: 'Henrique Lima',
+    phone: '71985431158',
+    email: 'henrique@test.com',
+    notes: 'Alérgico a gilete.',
+    lastServiceDate: undefined, 
+    serviceCount: 0,
+  }
+];
+
 export const THEME_KEY = 'salonAppTheme';
 export const AUTH_KEY = 'salonAppAuth';
 export const CONFIG_KEY = 'salonAppConfig';
 export const CLIENTS_KEY = 'salonAppClients';
 export const APPOINTMENTS_KEY = 'salonAppAppointments';
-export const FINANCIALS_KEY = 'salonAppFinancials'; // Retained for completeness if data structure changes
+export const FINANCIALS_KEY = 'salonAppFinancials'; 
 
 export const DAYS_OF_WEEK = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+
+export const FOLLOWUP_DAYS_KEY = 'salonAppFollowupDays';
+export const FOLLOWUP_TEMPLATE_KEY = 'salonAppFollowupTemplate';
+export const DEFAULT_FOLLOWUP_MESSAGE = `Olá {cliente}! 😊 Faz um tempinho que não nos vemos! Que tal agendar um novo corte para {pronome}? [Seu Nome/Salão] está com saudades!`;

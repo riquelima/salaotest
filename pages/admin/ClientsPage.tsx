@@ -1,16 +1,19 @@
+
 import React, { useState, FormEvent, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Client, Appointment } from '../../types';
-import { Button, Input, Textarea, Modal, Card } from '../../components/ui';
-import { PlusIcon, EditIcon, TrashIcon, WhatsAppIcon, SparklesIcon, UsersIcon } from '../../components/icons';
+import { Button, Input, Textarea, Modal, Card, Select } from '../../components/ui';
+import { PlusIcon, EditIcon, TrashIcon, WhatsAppIcon, SparklesIcon, UsersIcon, GridIcon, ListIcon } from '../../components/icons';
 import { formatDate, generateId, getWhatsAppLink, isClientRecent, getMonthName } from '../../utils/helpers';
-import { CLIENTS_KEY, APPOINTMENTS_KEY } from '../../constants';
+import { CLIENTS_KEY, APPOINTMENTS_KEY, PREDEFINED_CLIENTS } from '../../constants';
 import { useAppContext } from '../../contexts/AppContext';
 
+type ViewMode = 'grid' | 'list';
+
 const ClientsPage: React.FC = () => {
-  const { showNotification } = useAppContext();
-  const [clients, setClients] = useLocalStorage<Client[]>(CLIENTS_KEY, []);
+  const { showNotification, theme } = useAppContext();
+  const [clients, setClients] = useLocalStorage<Client[]>(CLIENTS_KEY, PREDEFINED_CLIENTS);
   const [appointments] = useLocalStorage<Appointment[]>(APPOINTMENTS_KEY, []);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,7 +21,8 @@ const ClientsPage: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterMonth, setFilterMonth] = useState<string>(''); // 'YYYY-MM'
+  const [filterMonth, setFilterMonth] = useState<string>(''); 
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   const location = useLocation();
   useEffect(() => {
@@ -43,7 +47,6 @@ const ClientsPage: React.FC = () => {
 
   const handleDelete = (id: string) => {
     if (window.confirm("Tem certeza que deseja excluir este cliente e todo o seu histórico?")) {
-      // Also consider deleting associated appointments or anonymizing them. For now, just client.
       setClients(prev => prev.filter(c => c.id !== id));
       showNotification("Cliente excluído.", "info");
     }
@@ -56,18 +59,17 @@ const ClientsPage: React.FC = () => {
       return;
     }
     
-    // Update serviceCount and lastServiceDate based on appointments
     const clientAppointments = appointments.filter(app => app.clientName === currentClient.name && app.status === 'completed');
     const serviceCount = clientAppointments.length;
     const lastServiceDate = clientAppointments.length > 0 
         ? clientAppointments.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0].date
         : currentClient.lastServiceDate;
 
-
     const clientData: Client = {
       id: editingId || generateId(),
       name: currentClient.name!,
       phone: currentClient.phone || '',
+      email: currentClient.email,
       notes: currentClient.notes,
       lastServiceDate: lastServiceDate,
       serviceCount: serviceCount,
@@ -92,7 +94,7 @@ const ClientsPage: React.FC = () => {
 
   const filteredClients = useMemo(() => {
     return clients
-      .map(client => { // Recalculate service count and last service date for display
+      .map(client => {
         const clientApps = appointments.filter(app => app.clientName === client.name && app.status === 'completed');
         return {
           ...client,
@@ -111,7 +113,7 @@ const ClientsPage: React.FC = () => {
           const serviceYearMonth = client.lastServiceDate.substring(0, 7);
           monthMatch = serviceYearMonth === filterMonth;
         } else if (filterMonth && !client.lastServiceDate) {
-          monthMatch = false; // If filtering by month, clients without service date don't match
+          monthMatch = false;
         }
         
         return (nameMatch || phoneMatch) && monthMatch;
@@ -123,7 +125,7 @@ const ClientsPage: React.FC = () => {
     const months = new Set<string>();
     clients.forEach(client => {
       if (client.lastServiceDate) {
-        months.add(client.lastServiceDate.substring(0, 7)); // YYYY-MM
+        months.add(client.lastServiceDate.substring(0, 7));
       }
     });
     return Array.from(months).sort().reverse().map(monthStr => ({
@@ -132,92 +134,160 @@ const ClientsPage: React.FC = () => {
     }));
   }, [clients]);
 
+  const mainTextColor = theme === 'dark' ? 'text-[#F4F4F5]' : 'text-[#111827]';
+  const cardTitleColor = theme === 'dark' ? 'text-[#E5E7EB]' : 'text-[#1F2937]';
+  const secondaryTextColor = theme === 'dark' ? 'text-[#D1D5DB]' : 'text-[#6B7280]'; // Corrected secondary for light
+  const mutedTextColor = theme === 'dark' ? 'text-[#9CA3AF]' : 'text-[#6B7280]';
+  const tableHeaderColor = theme === 'dark' ? 'text-[#9CA3AF]' : 'text-[#6B7280]';
+  const tableRowHover = theme === 'dark' ? 'dark:hover:bg-[#374151]/50' : 'hover:bg-[#F3F4F6]';
+  const tableBorder = theme === 'dark' ? 'dark:divide-[#4B5563]' : 'divide-[#E5E7EB]';
+  const tableHeaderBg = theme === 'dark' ? 'dark:bg-[#1F2937]' : 'bg-[#F9FAFB]';
+
+
   return (
     <div className="space-y-6">
-      <div className="relative">
-        <div className="flex flex-col items-center mb-4">
-            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-purple-200 dark:bg-purple-700 flex items-center justify-center mb-3 shadow-lg ring-2 ring-purple-500 dark:ring-purple-400 overflow-hidden">
-                <img 
-                    src="https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/logo1.png" 
-                    alt="Logo Salão" 
-                    className="w-full h-full object-cover" 
-                />
-            </div>
-        </div>
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100 text-center sm:text-left w-full sm:w-auto">Cadastro de Clientes</h1>
-            <Button onClick={handleAddNew} variant="primary" className="w-full sm:w-auto">
-            <PlusIcon className="w-5 h-5 mr-2" /> Novo Cliente
-            </Button>
-        </div>
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <h1 className={`text-3xl font-bold ${mainTextColor} text-center sm:text-left w-full sm:w-auto`}>Cadastro de Clientes</h1>
+          <Button onClick={handleAddNew} variant="primary" className="w-full sm:w-auto">
+          <PlusIcon className="w-5 h-5 mr-2" /> Novo Cliente
+          </Button>
       </div>
 
-
       <Card className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <Input
             placeholder="Buscar por nome ou telefone..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <select
+          <Select
             value={filterMonth}
             onChange={(e) => setFilterMonth(e.target.value)}
-            className="p-2 border rounded-md bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:ring-purple-500 focus:border-purple-500"
-          >
-            <option value="">Filtrar por mês do último atendimento</option>
-            {availableMonths.map(month => (
-              <option key={month.value} value={month.value}>{month.label}</option>
-            ))}
-          </select>
+            options={[{value: '', label: "Filtrar por mês do último atendimento"}, ...availableMonths]}
+            className="h-full"
+          />
+        </div>
+        <div className="flex justify-end items-center gap-2">
+            <span className={`text-sm ${mutedTextColor}`}>Visualizar como:</span>
+            <Button 
+                variant={viewMode === 'grid' ? 'primary' : 'ghost'} 
+                size="sm" 
+                onClick={() => setViewMode('grid')}
+                aria-pressed={viewMode === 'grid'}
+                title="Visualização em Grade"
+            >
+                <GridIcon className="w-5 h-5" />
+            </Button>
+            <Button 
+                variant={viewMode === 'list' ? 'primary' : 'ghost'} 
+                size="sm" 
+                onClick={() => setViewMode('list')}
+                aria-pressed={viewMode === 'list'}
+                title="Visualização em Lista"
+            >
+                <ListIcon className="w-5 h-5" />
+            </Button>
         </div>
       </Card>
 
       {filteredClients.length === 0 ? (
         <Card className="text-center p-8">
-            <UsersIcon className="w-16 h-16 mx-auto text-slate-400 dark:text-slate-500 mb-4" />
-            <p className="text-slate-500 dark:text-slate-400">Nenhum cliente encontrado. Adicione um novo cliente ou ajuste os filtros.</p>
+            <UsersIcon className={`w-16 h-16 mx-auto ${mutedTextColor} mb-4`} />
+            <p className={`${mutedTextColor}`}>Nenhum cliente encontrado. Adicione um novo cliente ou ajuste os filtros.</p>
         </Card>
-      ) : (
+      ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredClients.map(client => (
             <Card key={client.id} className="flex flex-col justify-between">
               <div>
                 <div className="flex justify-between items-start">
-                  <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100">{client.name}</h3>
+                  <h3 className={`text-xl font-semibold ${cardTitleColor}`}>{client.name}</h3>
                   <div className="flex items-center gap-2">
                     {isClientRecent(client.lastServiceDate) && 
-                      <span title="Atendido na última semana" className="px-2 py-0.5 text-xs bg-green-100 text-green-700 dark:bg-green-700 dark:text-green-100 rounded-full">📍 Recente</span>
+                      <span title="Atendido na última semana" className="px-2 py-0.5 text-xs bg-[#4ADE80]/20 text-[#16A34A] dark:bg-[#4ADE80]/30 dark:text-[#A7F3D0] rounded-full">📍 Recente</span>
                     }
                     {client.serviceCount >= 3 && 
-                      <span title="Cliente recorrente" className="px-2 py-0.5 text-xs bg-purple-100 text-purple-700 dark:bg-purple-700 dark:text-purple-100 rounded-full flex items-center gap-1">
+                      <span title="Cliente recorrente" className="px-2 py-0.5 text-xs bg-[#8B5CF6]/20 text-[#7C3AED] dark:bg-[#8B5CF6]/30 dark:text-[#C4B5FD] rounded-full flex items-center gap-1">
                         <SparklesIcon className="w-3 h-3"/> VIP
                       </span>
                     }
                   </div>
                 </div>
                 {client.phone && (
-                  <div className="flex items-center text-sm text-slate-600 dark:text-slate-300 mt-1">
+                  <div className={`flex items-center text-sm ${secondaryTextColor} mt-1`}>
                     <a href={getWhatsAppLink(client.phone)} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center group">
-                      <WhatsAppIcon className="w-4 h-4 mr-1 text-green-500 group-hover:text-green-600" /> {client.phone}
+                      <WhatsAppIcon className="w-4 h-4 mr-1 text-[#4ADE80] group-hover:text-[#22C55E]" /> {client.phone}
                     </a>
                   </div>
                 )}
-                <p className="text-sm text-slate-500 dark:text-slate-400">Último atendimento: {formatDate(client.lastServiceDate) || 'N/A'}</p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Total de atendimentos: {client.serviceCount}</p>
-                {client.notes && <p className="mt-2 text-xs italic text-slate-500 dark:text-slate-400 border-l-2 border-purple-500 pl-2">Obs: {client.notes}</p>}
+                <p className={`text-sm ${mutedTextColor}`}>Último atendimento: {formatDate(client.lastServiceDate) || 'N/A'}</p>
+                <p className={`text-sm ${mutedTextColor}`}>Total de atendimentos: {client.serviceCount}</p>
+                {client.notes && <p className={`mt-2 text-xs italic ${mutedTextColor} border-l-2 border-[#8B5CF6] dark:border-[#A78BFA] pl-2`}>Obs: {client.notes}</p>}
               </div>
               <div className="mt-4 flex justify-end space-x-2">
-                <Button size="sm" variant="secondary" onClick={() => handleEdit(client)}>
+                <Button size="sm" variant="secondary" onClick={() => handleEdit(client)} title="Editar Cliente">
                   <EditIcon className="w-4 h-4" />
                 </Button>
-                <Button size="sm" variant="danger" onClick={() => handleDelete(client.id)}>
+                <Button size="sm" variant="danger" onClick={() => handleDelete(client.id)} title="Excluir Cliente">
                   <TrashIcon className="w-4 h-4" />
                 </Button>
               </div>
             </Card>
           ))}
         </div>
+      ) : ( 
+        <Card className="overflow-x-auto">
+            <table className={`min-w-full divide-y ${tableBorder}`}>
+                <thead className={tableHeaderBg}>
+                    <tr>
+                        <th scope="col" className={`px-4 py-3 text-left text-xs font-medium ${tableHeaderColor} uppercase tracking-wider`}>Nome</th>
+                        <th scope="col" className={`px-4 py-3 text-left text-xs font-medium ${tableHeaderColor} uppercase tracking-wider`}>Contato</th>
+                        <th scope="col" className={`px-4 py-3 text-left text-xs font-medium ${tableHeaderColor} uppercase tracking-wider`}>Últ. Atend.</th>
+                        <th scope="col" className={`px-4 py-3 text-left text-xs font-medium ${tableHeaderColor} uppercase tracking-wider`}>Total Atend.</th>
+                        <th scope="col" className={`px-4 py-3 text-left text-xs font-medium ${tableHeaderColor} uppercase tracking-wider`}>Status</th>
+                        <th scope="col" className={`px-4 py-3 text-right text-xs font-medium ${tableHeaderColor} uppercase tracking-wider`}>Ações</th>
+                    </tr>
+                </thead>
+                <tbody className={`bg-white dark:bg-[#2C2C3B]/80 divide-y ${tableBorder}`}>
+                    {filteredClients.map(client => (
+                        <tr key={client.id} className={tableRowHover}>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                                <div className={`text-sm font-medium ${mainTextColor}`}>{client.name}</div>
+                                {client.notes && <div className={`text-xs ${mutedTextColor} truncate max-w-xs`} title={client.notes}>Obs: {client.notes}</div>}
+                            </td>
+                            <td className={`px-4 py-3 whitespace-nowrap text-sm ${secondaryTextColor}`}>
+                                {client.phone && (
+                                    <a href={getWhatsAppLink(client.phone)} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center group">
+                                    <WhatsAppIcon className="w-4 h-4 mr-1 text-[#4ADE80] group-hover:text-[#22C55E] flex-shrink-0" />
+                                    {client.phone}
+                                    </a>
+                                )}
+                            </td>
+                            <td className={`px-4 py-3 whitespace-nowrap text-sm ${mutedTextColor}`}>{formatDate(client.lastServiceDate) || 'N/A'}</td>
+                            <td className={`px-4 py-3 whitespace-nowrap text-sm text-center ${mutedTextColor}`}>{client.serviceCount}</td>
+                            <td className="px-4 py-3 whitespace-nowrap text-xs">
+                                {isClientRecent(client.lastServiceDate) && 
+                                <span title="Atendido na última semana" className="block my-0.5 px-2 py-0.5 bg-[#4ADE80]/20 text-[#16A34A] dark:bg-[#4ADE80]/30 dark:text-[#A7F3D0] rounded-full text-center">Recente</span>
+                                }
+                                {client.serviceCount >= 3 && 
+                                <span title="Cliente recorrente" className="block my-0.5 px-2 py-0.5 bg-[#8B5CF6]/20 text-[#7C3AED] dark:bg-[#8B5CF6]/30 dark:text-[#C4B5FD] rounded-full flex items-center justify-center gap-1">
+                                    <SparklesIcon className="w-3 h-3"/> VIP
+                                </span>
+                                }
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                <Button size="sm" variant="secondary" onClick={() => handleEdit(client)} title="Editar Cliente">
+                                    <EditIcon className="w-4 h-4" />
+                                </Button>
+                                <Button size="sm" variant="danger" onClick={() => handleDelete(client.id)} title="Excluir Cliente">
+                                    <TrashIcon className="w-4 h-4" />
+                                </Button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </Card>
       )}
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingId ? "Editar Cliente" : "Novo Cliente"}>
@@ -236,6 +306,14 @@ const ClientsPage: React.FC = () => {
             value={currentClient?.phone || ''}
             onChange={handleInputChange}
             placeholder="Ex: (11) 91234-5678"
+          />
+           <Input
+            label="Email (Opcional)"
+            name="email"
+            type="email"
+            value={currentClient?.email || ''}
+            onChange={handleInputChange}
+            placeholder="Ex: cliente@email.com"
           />
           <Textarea
             label="Observações"

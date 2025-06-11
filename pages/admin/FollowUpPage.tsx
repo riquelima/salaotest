@@ -1,25 +1,27 @@
+
 import React, { useState, useMemo } from 'react';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Client, Appointment } from '../../types';
-import { Button, Card, Textarea } from '../../components/ui';
+import { Button, Card, Textarea, Input } from '../../components/ui';
 import { WhatsAppIcon } from '../../components/icons';
 import { formatDate, getWhatsAppLink, isClientOverdueForReturn } from '../../utils/helpers';
-import { CLIENTS_KEY, APPOINTMENTS_KEY } from '../../constants';
+import { CLIENTS_KEY, APPOINTMENTS_KEY, FOLLOWUP_DAYS_KEY, FOLLOWUP_TEMPLATE_KEY, DEFAULT_FOLLOWUP_MESSAGE } from '../../constants';
 import { useAppContext } from '../../contexts/AppContext';
 
 const FollowUpPage: React.FC = () => {
-  const { config, showNotification } = useAppContext();
+  const { config, showNotification, theme } = useAppContext();
   const [clients] = useLocalStorage<Client[]>(CLIENTS_KEY, []);
   const [appointments] = useLocalStorage<Appointment[]>(APPOINTMENTS_KEY, []);
 
-  const [daysThreshold, setDaysThreshold] = useState(45);
-  const [customMessageTemplate, setCustomMessageTemplate] = useState(
-    `Olá {cliente}! 😊 Faz um tempinho que não nos vemos! Que tal agendar um novo corte para {pronome}? ${config.stylistName} está com saudades!`
+  const [daysThreshold, setDaysThreshold] = useLocalStorage<number>(FOLLOWUP_DAYS_KEY, 45);
+  const [customMessageTemplate, setCustomMessageTemplate] = useLocalStorage<string>(
+    FOLLOWUP_TEMPLATE_KEY,
+    DEFAULT_FOLLOWUP_MESSAGE.replace('[Seu Nome/Salão]', config.stylistName)
   );
 
   const clientsForFollowUp = useMemo(() => {
     return clients
-      .map(client => { // Ensure latest service date and count
+      .map(client => { 
         const clientApps = appointments.filter(app => app.clientName === client.name && app.status === 'completed');
         return {
           ...client,
@@ -30,41 +32,46 @@ const FollowUpPage: React.FC = () => {
         };
       })
       .filter(client => isClientOverdueForReturn(client.lastServiceDate, daysThreshold) && client.phone)
-      .sort((a,b) => new Date(a.lastServiceDate || 0).getTime() - new Date(b.lastServiceDate || 0).getTime()); // oldest first
+      .sort((a,b) => new Date(a.lastServiceDate || 0).getTime() - new Date(b.lastServiceDate || 0).getTime()); 
   }, [clients, appointments, daysThreshold]);
 
   const generateMessage = (clientName: string) => {
-    // Basic gender assumption from name ending (very naive)
-    const isLikelyFemale = clientName.toLowerCase().endsWith('a') || clientName.toLowerCase().endsWith('e'); // simplistic
+    const isLikelyFemale = clientName.toLowerCase().endsWith('a') || 
+                           clientName.toLowerCase().endsWith('e') || 
+                           clientName.toLowerCase().includes('maria') ||
+                           clientName.toLowerCase().includes('ana'); 
     const pronome = isLikelyFemale ? 'ela' : 'ele';
     return customMessageTemplate
-      .replace('{cliente}', clientName)
-      .replace('{pronome}', pronome);
+      .replace(/{cliente}/gi, clientName)
+      .replace(/{pronome}/gi, pronome);
   };
 
-  const handleCopyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-      .then(() => showNotification("Mensagem copiada!", "success"))
-      .catch(() => showNotification("Erro ao copiar mensagem.", "error"));
+  const handleSaveSettings = () => {
+    // Settings are auto-saved by useLocalStorage hook
+    showNotification("Configurações de lembrete salvas!", "success");
   };
+  
+  const mainTextColor = theme === 'dark' ? 'text-[#F4F4F5]' : 'text-[#111827]';
+  const cardTitleColor = theme === 'dark' ? 'text-[#E5E7EB]' : 'text-[#1F2937]';
+  const secondaryTextColor = theme === 'dark' ? 'text-[#D1D5DB]' : 'text-[#6B7280]'; // Corrected for light mode
+  const mutedTextColor = theme === 'dark' ? 'text-[#9CA3AF]' : 'text-[#6B7280]';
+
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Mensagens de Retorno</h1>
+      <h1 className={`text-3xl font-bold ${mainTextColor}`}>Mensagens de Retorno</h1>
 
       <Card className="p-4">
-        <h2 className="text-xl font-semibold mb-3 text-slate-700 dark:text-slate-200">Configurações de Lembrete</h2>
+        <h2 className={`text-xl font-semibold mb-3 ${cardTitleColor}`}>Configurações de Lembrete</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
             <div>
-                <label htmlFor="daysThreshold" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Lembrar clientes que não retornam há mais de (dias):
-                </label>
-                <input
+                <Input
+                    label="Lembrar clientes que não retornam há mais de (dias):"
                     type="number"
                     id="daysThreshold"
                     value={daysThreshold}
                     onChange={(e) => setDaysThreshold(parseInt(e.target.value, 10) || 0)}
-                    className="mt-1 block w-full p-2 border rounded-md bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:ring-purple-500 focus:border-purple-500"
+                    min="1"
                 />
             </div>
         </div>
@@ -75,50 +82,54 @@ const FollowUpPage: React.FC = () => {
                 onChange={(e) => setCustomMessageTemplate(e.target.value)}
                 rows={4}
             />
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Exemplo: Olá {`{cliente}`}! 😊 Que tal um novo corte para {`{pronome}`}?</p>
+            <p className={`text-xs ${mutedTextColor} mt-1`}>Exemplo: Olá {`{cliente}`}! 😊 Que tal um novo corte para {`{pronome}`}?</p>
+        </div>
+        <div className="mt-4 flex justify-end">
+            <Button onClick={handleSaveSettings}>Salvar Configurações</Button>
         </div>
       </Card>
-
-      {clientsForFollowUp.length === 0 ? (
-         <Card className="text-center p-8">
-            <WhatsAppIcon className="w-16 h-16 mx-auto text-slate-400 dark:text-slate-500 mb-4" />
-            <p className="text-slate-500 dark:text-slate-400">Nenhum cliente precisa de lembrete no momento com os critérios atuais.</p>
-        </Card>
-      ) : (
-        <Card>
-          <h2 className="text-xl font-semibold mb-4 text-slate-700 dark:text-slate-200">
-            Clientes para Enviar Lembrete ({clientsForFollowUp.length})
-          </h2>
-          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-            {clientsForFollowUp.map(client => {
-              const message = generateMessage(client.name);
-              return (
-                <div key={client.id} className="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg shadow">
-                  <h3 className="font-semibold text-lg text-slate-800 dark:text-slate-100">{client.name}</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-300">Telefone: {client.phone}</p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Último atendimento: {formatDate(client.lastServiceDate) || 'N/A'}</p>
-                  <div className="mt-3 p-3 bg-slate-200 dark:bg-slate-700 rounded-md">
-                    <p className="text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap">{message}</p>
-                  </div>
-                  <div className="mt-3 flex space-x-2">
-                    <Button size="sm" onClick={() => handleCopyToClipboard(message)}>
-                      Copiar Mensagem
-                    </Button>
-                    <a
-                      href={getWhatsAppLink(client.phone, message)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center px-3 py-1.5 text-sm font-semibold rounded-lg shadow-md bg-green-500 hover:bg-green-600 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300 ease-in-out"
-                    >
-                      <WhatsAppIcon className="w-4 h-4 mr-1.5" /> Abrir no WhatsApp
-                    </a>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      )}
+      
+      <Card>
+        <div className="flex items-center mb-4">
+            <h2 className={`text-xl font-semibold ${cardTitleColor}`}>
+                Lembrar Clientes 
+            </h2>
+            <img 
+              src="https://raw.githubusercontent.com/riquelima/salaotest/refs/heads/main/logoWhatsapp.png" 
+              alt="WhatsApp Logo" 
+              className="w-8 h-8 ml-3"
+            />
+             <span className={`ml-auto text-sm ${mutedTextColor}`}>({clientsForFollowUp.length} para lembrar)</span>
+        </div>
+        {clientsForFollowUp.length === 0 ? (
+            <div className="text-center p-8">
+                <WhatsAppIcon className={`w-16 h-16 mx-auto ${mutedTextColor} mb-4`} />
+                <p className={`${mutedTextColor}`}>Nenhum cliente precisa de lembrete no momento com os critérios atuais.</p>
+            </div>
+        ) : (
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                {clientsForFollowUp.map(client => {
+                const message = generateMessage(client.name);
+                return (
+                    <Card key={client.id} className="p-4 bg-[#F9FAFB] dark:bg-[#1E1E2F]/80 !shadow-md">
+                        <h3 className={`font-semibold text-lg ${cardTitleColor}`}>{client.name}</h3>
+                        <p className={`text-sm ${secondaryTextColor}`}>{client.phone}</p>
+                        <p className={`text-sm ${mutedTextColor}`}>Último atendimento: {formatDate(client.lastServiceDate) || 'N/A'}</p>
+                        <div className="mt-3 flex justify-end">
+                            <Button
+                            size="sm"
+                            className='bg-[#4ADE80] hover:bg-[#22C55E] text-white' 
+                            onClick={() => window.open(getWhatsAppLink(client.phone, message), '_blank')}
+                            >
+                            <WhatsAppIcon className="w-4 h-4 mr-1.5 text-white" /> Enviar WhatsApp
+                            </Button>
+                        </div>
+                    </Card>
+                );
+                })}
+            </div>
+        )}
+      </Card>
     </div>
   );
 };

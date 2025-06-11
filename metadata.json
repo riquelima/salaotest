@@ -1,5 +1,6 @@
 {
-  "name": "SalaoTiaDea-v2",
+  "name": "Copy of SalaoTiaDea-v3",
   "description": "Aplicativo de gerenciamento para o Salão Infantil Encantado, permitindo controle de agenda, clientes, finanças e configurações.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "prompt": ""
 }

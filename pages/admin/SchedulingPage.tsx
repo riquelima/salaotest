@@ -1,15 +1,16 @@
+
 import React, { useState, useEffect, FormEvent } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { Appointment, AppointmentLocation, Client, AppointmentStatus } from '../../types';
 import { Button, Input, Select, Textarea, Modal, Card } from '../../components/ui';
 import { PlusIcon, EditIcon, TrashIcon, CheckCircleIcon, XCircleIcon, HomeIcon, StoreIcon, CalendarIcon, BanIcon } from '../../components/icons';
-import { formatDate, generateId, filterAppointmentsByPeriod, getDayOfWeek, getStatusLabel } from '../../utils/helpers';
+import { formatDate, generateId, filterAppointmentsByPeriod, getDayOfWeek, getStatusLabel, formatCurrency } from '../../utils/helpers';
 import { APPOINTMENTS_KEY, CLIENTS_KEY } from '../../constants';
 import { useAppContext } from '../../contexts/AppContext';
 
 const SchedulingPage: React.FC = () => {
-  const { config, showNotification } = useAppContext();
+  const { config, showNotification, theme } = useAppContext();
   const [appointments, setAppointments] = useLocalStorage<Appointment[]>(APPOINTMENTS_KEY, []);
   const [clients] = useLocalStorage<Client[]>(CLIENTS_KEY, []);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,7 +20,7 @@ const SchedulingPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('week');
   const [currentDisplayDate, setCurrentDisplayDate] = useState(new Date());
 
-  const locationHook = useLocation(); // Renamed to avoid conflict
+  const locationHook = useLocation(); 
   useEffect(() => {
     const params = new URLSearchParams(locationHook.search);
     if (params.get('action') === 'add') {
@@ -29,12 +30,31 @@ const SchedulingPage: React.FC = () => {
   }, [locationHook.search]);
 
 
+  const getRoundedDefaultDateTime = (): string => {
+    const now = new Date();
+    const minutes = now.getMinutes();
+
+    if (minutes <= 7) { 
+        now.setMinutes(0,0,0);
+    } else if (minutes <= 22) { 
+        now.setMinutes(15,0,0);
+    } else if (minutes <= 37) { 
+        now.setMinutes(30,0,0);
+    } else if (minutes <= 52) { 
+        now.setMinutes(45,0,0);
+    } else { 
+        now.setMinutes(0,0,0);
+        now.setHours(now.getHours() + 1);
+    }
+    return now.toISOString().substring(0, 16);
+  };
+
   const handleAddNew = () => {
     setCurrentAppointment({
       clientName: '',
-      date: new Date().toISOString().substring(0, 16), 
+      date: getRoundedDefaultDateTime(), 
       location: AppointmentLocation.SALON,
-      status: 'pending', // Default status
+      status: 'pending',
       notes: '',
       serviceValue: undefined,
     });
@@ -43,7 +63,8 @@ const SchedulingPage: React.FC = () => {
   };
 
   const handleEdit = (appointment: Appointment) => {
-    setCurrentAppointment({ ...appointment, date: new Date(appointment.date).toISOString().substring(0, 16) });
+    const editableDate = new Date(appointment.date).toISOString().substring(0,16);
+    setCurrentAppointment({ ...appointment, date: editableDate });
     setEditingId(appointment.id);
     setIsModalOpen(true);
   };
@@ -72,7 +93,7 @@ const SchedulingPage: React.FC = () => {
     const appointmentData: Appointment = {
       id: editingId || generateId(),
       clientName: currentAppointment.clientName!,
-      date: new Date(currentAppointment.date!).toISOString(),
+      date: new Date(currentAppointment.date!).toISOString(), 
       location: currentAppointment.location || AppointmentLocation.SALON,
       status: currentAppointment.status!,
       notes: currentAppointment.notes,
@@ -95,7 +116,6 @@ const SchedulingPage: React.FC = () => {
     const { name, value, type } = e.target;
     let val: string | number | AppointmentStatus = value;
     if (type === 'number') val = parseFloat(value);
-    // Removed checkbox handling as status is now a select
     
     setCurrentAppointment(prev => ({ ...prev, [name]: val }));
   };
@@ -120,25 +140,26 @@ const SchedulingPage: React.FC = () => {
       return formatDate(currentDisplayDate.toISOString());
     } else if (viewMode === 'week') {
       const startOfWeek = new Date(currentDisplayDate);
-      startOfWeek.setDate(currentDisplayDate.getDate() - currentDisplayDate.getDay() + (currentDisplayDate.getDay() === 0 ? -6 : 1) ); // Monday
+      startOfWeek.setDate(currentDisplayDate.getDate() - currentDisplayDate.getDay() + (currentDisplayDate.getDay() === 0 ? -6 : 1) ); 
       const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
+      endOfWeek.setDate(startOfWeek.getDate() + 6); 
       return `${formatDate(startOfWeek.toISOString())} - ${formatDate(endOfWeek.toISOString())}`;
     } else {
       return `${new Date(currentDisplayDate.getFullYear(), currentDisplayDate.getMonth(), 1).toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}`;
     }
   };
   
-  const getStatusColor = (status: AppointmentStatus) => {
+  const getStatusStyle = (status: AppointmentStatus): { borderColor: string, textColor: string, iconColorClass: string } => {
     switch(status) {
-      case 'pending': return 'border-yellow-500';
-      case 'confirmed': return 'border-blue-500';
-      case 'completed': return 'border-green-500 opacity-70';
-      case 'cancelled': return 'border-red-500 opacity-50 line-through';
-      case 'missed': return 'border-orange-500 opacity-60';
-      default: return 'border-slate-300 dark:border-slate-700';
+      case 'pending': return { borderColor: 'border-[#FBBF24]', textColor: 'text-[#FBBF24]', iconColorClass: 'text-[#FBBF24]' }; // Amarelo
+      case 'confirmed': return { borderColor: 'border-[#60A5FA]', textColor: 'text-[#60A5FA]', iconColorClass: 'text-[#60A5FA]' }; // Azul
+      case 'completed': return { borderColor: 'border-[#4ADE80]', textColor: 'text-[#4ADE80]', iconColorClass: 'text-[#4ADE80]' }; // Verde
+      case 'cancelled': return { borderColor: 'border-[#F87171]', textColor: 'text-[#F87171]', iconColorClass: 'text-[#F87171]' }; // Vermelho
+      case 'missed': return { borderColor: 'border-[#F87171]', textColor: 'text-[#F87171]', iconColorClass: 'text-[#F87171]' }; // Vermelho
+      default: return { borderColor: 'border-[#E5E7EB] dark:border-[#4B5563]', textColor: 'text-[#6B7280] dark:text-[#9CA3AF]', iconColorClass: 'text-[#6B7280] dark:text-[#9CA3AF]' };
     }
   };
+
 
   const isToday = (dateString: string) => {
     const appDate = new Date(dateString);
@@ -147,12 +168,17 @@ const SchedulingPage: React.FC = () => {
            appDate.getMonth() === today.getMonth() &&
            appDate.getDate() === today.getDate();
   };
+  
+  const mainTextColor = theme === 'dark' ? 'text-[#F4F4F5]' : 'text-[#111827]';
+  const cardTitleColor = theme === 'dark' ? 'text-[#E5E7EB]' : 'text-[#1F2937]';
+  const secondaryTextColor = theme === 'dark' ? 'text-[#D1D5DB]' : 'text-[#374151]';
+  const mutedTextColor = theme === 'dark' ? 'text-[#9CA3AF]' : 'text-[#6B7280]';
 
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Agenda de Atendimentos</h1>
+        <h1 className={`text-3xl font-bold ${mainTextColor}`}>Agenda de Atendimentos</h1>
         <Button onClick={handleAddNew} variant="primary">
           <PlusIcon className="w-5 h-5 mr-2" /> Novo Agendamento
         </Button>
@@ -167,7 +193,7 @@ const SchedulingPage: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" onClick={() => changeDateDisplay(-1)} variant="ghost">Anterior</Button>
-            <span className="font-semibold text-slate-700 dark:text-slate-200 text-center w-40 sm:w-48">{getDisplayDateRange()}</span>
+            <span className={`font-semibold ${secondaryTextColor} text-center w-40 sm:w-48`}>{getDisplayDateRange()}</span>
             <Button size="sm" onClick={() => changeDateDisplay(1)} variant="ghost">Próximo</Button>
           </div>
         </div>
@@ -175,55 +201,53 @@ const SchedulingPage: React.FC = () => {
       
       {filteredAppointments.length === 0 ? (
         <Card className="text-center p-8">
-            <CalendarIcon className="w-16 h-16 mx-auto text-slate-400 dark:text-slate-500 mb-4" />
-            <p className="text-slate-500 dark:text-slate-400">Nenhum agendamento para este período.</p>
+            <CalendarIcon className={`w-16 h-16 mx-auto ${mutedTextColor} mb-4`} />
+            <p className={`${mutedTextColor}`}>Nenhum agendamento para este período.</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAppointments.map(app => (
-            <Card key={app.id} className={`relative transition-all duration-300 border-l-4 ${getStatusColor(app.status)} ${isToday(app.date) && (app.status === 'pending' || app.status === 'confirmed') ? 'ring-2 ring-purple-500 shadow-lg' : ''} bg-white dark:bg-slate-800`}>
-              <div className="flex justify-between items-start mb-2">
-                <h3 className={`text-xl font-semibold ${app.status === 'cancelled' || app.status === 'completed' ? 'line-through' : ''} text-slate-800 dark:text-slate-100`}>{app.clientName}</h3>
-                {app.location === AppointmentLocation.HOME ? <HomeIcon className="w-6 h-6 text-blue-500" title="Domicílio"/> : <StoreIcon className="w-6 h-6 text-green-500" title="Salão"/>}
-              </div>
-              <p className="text-sm text-slate-600 dark:text-slate-300">
-                {formatDate(app.date, true)} ({getDayOfWeek(app.date)})
-              </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Local: {app.location}</p>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-300">Status: <span className={`font-bold ${
-                app.status === 'completed' ? 'text-green-500' : 
-                app.status === 'cancelled' ? 'text-red-500' :
-                app.status === 'missed' ? 'text-orange-500' :
-                app.status === 'confirmed' ? 'text-blue-500' : 'text-yellow-500'
-              }`}>{getStatusLabel(app.status)}</span></p>
-              {app.serviceValue && <p className="text-sm text-slate-500 dark:text-slate-400">Valor: R$ {app.serviceValue.toFixed(2)}</p>}
-              {app.notes && <p className="mt-2 text-xs italic text-slate-500 dark:text-slate-400 border-l-2 border-purple-300 dark:border-purple-700 pl-2">Obs: {app.notes}</p>}
-              
-              <div className="mt-4 flex flex-wrap gap-2 justify-end">
-                {app.status !== 'completed' && app.status !== 'cancelled' && (
-                    <Button size="sm" variant="ghost" onClick={() => handleSetStatus(app.id, 'completed')} title="Marcar como concluído">
-                        <CheckCircleIcon className="w-5 h-5 text-green-500"/>
-                    </Button>
-                )}
-                 {app.status === 'completed' && (
-                    <Button size="sm" variant="ghost" onClick={() => handleSetStatus(app.id, 'pending')} title="Reverter para pendente">
-                        <XCircleIcon className="w-5 h-5 text-yellow-500"/>
-                    </Button>
-                )}
-                {app.status !== 'cancelled' && app.status !== 'completed' && (
-                    <Button size="sm" variant="ghost" onClick={() => handleSetStatus(app.id, 'cancelled')} title="Cancelar agendamento">
-                         <BanIcon className="w-5 h-5 text-red-500" /> {/* Changed XCircle to BanIcon for Cancel */}
-                    </Button>
-                )}
-                <Button size="sm" variant="secondary" onClick={() => handleEdit(app)} title="Editar">
-                  <EditIcon className="w-4 h-4" />
-                </Button>
-                <Button size="sm" variant="danger" onClick={() => handleDelete(app.id)} title="Excluir">
-                  <TrashIcon className="w-4 h-4" />
-                </Button>
-              </div>
-            </Card>
-          ))}
+          {filteredAppointments.map(app => {
+            const statusStyle = getStatusStyle(app.status);
+            return (
+              <Card key={app.id} className={`relative transition-all duration-300 border-l-4 ${statusStyle.borderColor} ${isToday(app.date) && (app.status === 'pending' || app.status === 'confirmed') ? 'ring-2 ring-[#8B5CF6] shadow-lg' : ''}`}>
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className={`text-xl font-semibold ${app.status === 'cancelled' || app.status === 'completed' ? `line-through ${mutedTextColor}` : cardTitleColor}`}>{app.clientName}</h3>
+                  {app.location === AppointmentLocation.HOME ? <HomeIcon className="w-6 h-6 text-[#60A5FA]" title="Domicílio"/> : <StoreIcon className="w-6 h-6 text-[#4ADE80]" title="Salão"/>}
+                </div>
+                <p className={`text-sm ${secondaryTextColor}`}>
+                  {formatDate(app.date, true)} ({getDayOfWeek(app.date)}) 
+                </p>
+                <p className={`text-sm ${mutedTextColor}`}>Local: {app.location}</p>
+                <p className={`text-sm font-medium ${statusStyle.textColor}`}>Status: <span className={`font-bold`}>{getStatusLabel(app.status)}</span></p>
+                {app.serviceValue && <p className={`text-sm ${mutedTextColor}`}>Valor: {formatCurrency(app.serviceValue)}</p>}
+                {app.notes && <p className={`mt-2 text-xs italic ${mutedTextColor} border-l-2 border-[#8B5CF6] dark:border-[#A78BFA] pl-2`}>Obs: {app.notes}</p>}
+                
+                <div className="mt-4 flex flex-wrap gap-2 justify-end">
+                  {app.status !== 'completed' && app.status !== 'cancelled' && (
+                      <Button size="sm" variant="ghost" onClick={() => handleSetStatus(app.id, 'completed')} title="Marcar como concluído">
+                          <CheckCircleIcon className={`w-5 h-5 ${getStatusStyle('completed').iconColorClass}`}/>
+                      </Button>
+                  )}
+                  {app.status === 'completed' && (
+                      <Button size="sm" variant="ghost" onClick={() => handleSetStatus(app.id, 'pending')} title="Reverter para pendente">
+                          <XCircleIcon className={`w-5 h-5 ${getStatusStyle('pending').iconColorClass}`}/>
+                      </Button>
+                  )}
+                  {app.status !== 'cancelled' && app.status !== 'completed' && (
+                      <Button size="sm" variant="ghost" onClick={() => handleSetStatus(app.id, 'cancelled')} title="Cancelar agendamento">
+                           <BanIcon className={`w-5 h-5 ${getStatusStyle('cancelled').iconColorClass}`} />
+                      </Button>
+                  )}
+                  <Button size="sm" variant="secondary" onClick={() => handleEdit(app)} title="Editar">
+                    <EditIcon className="w-4 h-4" />
+                  </Button>
+                  <Button size="sm" variant="danger" onClick={() => handleDelete(app.id)} title="Excluir">
+                    <TrashIcon className="w-4 h-4" />
+                  </Button>
+                </div>
+              </Card>
+            )
+          })}
         </div>
       )}
 
@@ -247,7 +271,9 @@ const SchedulingPage: React.FC = () => {
             name="date"
             value={currentAppointment?.date || ''}
             onChange={handleInputChange}
+            step="900" 
             required
+            className="dark:[color-scheme:dark]" 
           />
           <Select
             label="Local*"

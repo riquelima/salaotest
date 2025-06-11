@@ -6,9 +6,10 @@
     <title>Salão Infantil Encantado</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Minimal body styling to ensure full height and dark theme as default */
+        /* Minimal body styling */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Default background is now handled by App.tsx for dynamic theming */
         }
         /* Custom scrollbar for webkit browsers for better aesthetics */
         ::-webkit-scrollbar {
@@ -16,14 +17,17 @@
             height: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #2A2A3D; /* Slightly lighter than main dark bg */
+            background: #F9FAFB; /* New light theme app background */
+        }
+        html.dark ::-webkit-scrollbar-track {
+            background: #1E1E2F; /* New dark theme app background */
         }
         ::-webkit-scrollbar-thumb {
-            background: #7C3AED;
+            background: #8B5CF6; /* New primary purple */
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #5b21b6; /* Darker purple on hover */
+            background: #7C3AED; /* Darker purple on hover */
         }
         /* Utility to hide scrollbars */
         .no-scrollbar::-webkit-scrollbar {
